@@ -13,7 +13,7 @@ public class BodySegment {
 		this.x = x;
 		this.y = y;
 		this.size = size;
-		this.color = StdDraw.GREEN;
+		this.color = StdDraw.PINK;
 	}
 	
 	/**
