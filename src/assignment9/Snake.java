@@ -9,11 +9,17 @@ public class Snake {
 	private LinkedList<BodySegment> segments;
 	private double deltaX;
 	private double deltaY;
+	private double speedMultiplier;
+	private double powerUpTimer;
 	
 	public Snake() {
-		//FIXME - set up the segments instance variable
-		deltaX = 0;
-		deltaY = 0;
+		this.segments = new LinkedList<BodySegment>();
+		this.deltaX = MOVEMENT_SIZE;
+		this.deltaY = 0;
+		BodySegment first = new BodySegment(.5, .5, SEGMENT_SIZE);
+		segments.add(first);
+		this.speedMultiplier = 1.0;
+		this.powerUpTimer = 200;
 	}
 	
 	public void changeDirection(int direction) {
@@ -37,14 +43,27 @@ public class Snake {
 	 * based on the current direction of travel
 	 */
 	public void move() {
-		//FIXME
+		if (segments.isEmpty()) {
+			return;
+		}
+		
+		BodySegment head = segments.getFirst();
+		double newX = head.getX() + (deltaX * speedMultiplier);
+		double newY = head.getY() + (deltaY * speedMultiplier);
+		
+		BodySegment newHead = new BodySegment(newX, newY, SEGMENT_SIZE);
+		
+		segments.addFirst(newHead);
+		segments.removeLast();
 	}
 	
 	/**
 	 * Draws the snake by drawing each segment
 	 */
 	public void draw() {
-		//FIXME
+		for (int i = 0; i < segments.size(); i++) {
+			(segments.get(i)).draw();
+		}
 	}
 	
 	/**
@@ -53,7 +72,19 @@ public class Snake {
 	 * @return true if the snake successfully ate the food
 	 */
 	public boolean eatFood(Food f) {
-		//FIXME
+		BodySegment head = segments.getFirst();
+		double dx = head.getX() - f.getX();
+		double dy = head.getY() - f.getY();
+		double distance = Math.sqrt((dx * dx) + (dy * dy));
+		
+		if (distance < (SEGMENT_SIZE + Food.FOOD_SIZE)) {
+			BodySegment tail = segments.getLast();
+			BodySegment newSegment = new BodySegment(tail.getX(), tail.getY(), SEGMENT_SIZE);
+			segments.addLast(newSegment);
+			return true;
+		}
+		
+		
 		return false;
 	}
 	
@@ -62,7 +93,38 @@ public class Snake {
 	 * @return whether or not the head is in the bounds of the window
 	 */
 	public boolean isInbounds() {
-		//FIXME
-		return true;
+		BodySegment head = segments.getFirst();
+		double x = head.getX();
+		double y = head.getY();
+		if (x >= 0 && y >= 0 && x <= 1 && y <= 1) {
+			return true;
+		}
+		
+		return false;
 	}
+	
+	public void updatePowerUp() {
+		if (powerUpTimer > 0) {
+			powerUpTimer--;
+			if (powerUpTimer == 0) {
+				this.speedMultiplier = 1.0;
+			}
+		}
+	}
+	
+	public void applyPowerUp(String type) {
+	    if (type.equals("speed")) {
+	        speedMultiplier = 1.5;
+	        powerUpTimer = 200; 
+	        }
+	}
+	
+	public LinkedList<BodySegment> getSegments() {
+	    return segments;
+	}
+	
+	public double getCurrentSpeed() {
+	    return (MOVEMENT_SIZE * speedMultiplier);
+	}
+	
 }
